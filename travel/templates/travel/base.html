@@ -1,0 +1,129 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Wisamigo{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'travel/css/style.css' %}?v=database-2">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
+
+<!-- Tombol AI -->
+<div id="ai-btn" onclick="toggleAI()"
+style="
+position:fixed;
+bottom:20px;
+right:20px;
+width:70px;
+height:70px;
+background:#0d6efd;
+border-radius:50%;
+z-index:99999;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:30px;
+color:white;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,.3);
+">
+🤖
+</div>
+
+<div id="ai-chat"
+style="
+display:none;
+position:fixed;
+bottom:100px;
+right:20px;
+width:350px;
+height:500px;
+background:white;
+border-radius:15px;
+overflow:hidden;
+z-index:99999;
+box-shadow:0 5px 20px rgba(0,0,0,.3);
+">
+
+<div style="
+background:#0d6efd;
+color:white;
+padding:15px;
+font-weight:bold;
+">
+🤖 Wisamigo AI
+</div>
+
+<div id="hasil"
+style="
+height:380px;
+overflow-y:auto;
+padding:10px;
+">
+</div>
+
+<div style="display:flex;">
+<input
+id="msg"
+type="text"
+placeholder="Tanya wisata..."
+style="
+flex:1;
+padding:10px;
+border:none;
+outline:none;
+">
+
+<button
+onclick="kirimAI()"
+style="
+width:70px;
+background:#0d6efd;
+color:white;
+border:none;
+">
+Kirim
+</button>
+</div>
+
+</div>
+
+<script>
+function toggleAI(){
+    let chat=document.getElementById("ai-chat");
+
+    if(chat.style.display==="none"){
+        chat.style.display="block";
+    }else{
+        chat.style.display="none";
+    }
+}
+
+function kirimAI(){
+    let pesan=document.getElementById("msg").value;
+    if(!pesan.trim()) return;
+
+    fetch(`/ai-chat/?message=${encodeURIComponent(pesan)}`)
+    .then(res=>res.json())
+    .then(data=>{
+        const reply = data.reply || 'Maaf, respons AI tidak tersedia. Silakan coba lagi.';
+        document.getElementById("hasil").innerHTML +=
+        `<p><b>Kamu:</b> ${pesan}</p>
+         <p><b>AI:</b> ${reply}</p>`;
+        document.getElementById("msg").value="";
+        let chat=document.getElementById("hasil");
+        chat.scrollTop=chat.scrollHeight;
+    })
+    .catch(error=>{
+        console.error(error);
+        document.getElementById("hasil").innerHTML +=
+        `<p><b>AI:</b> Maaf, AI gagal merespons. Coba lagi nanti.</p>`;
+    });
+}
+</script>

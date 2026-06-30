@@ -1,0 +1,97 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}{{ room.name }} - Wisamigo{% endblock %}
+{% block content %}
+<div class="room-page">
+  <header class="search-header room-topbar">
+    <a class="back-link" href="{% url 'travel:search' %}?q={{ room.destination|urlencode }}" aria-label="Back to search">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a class="active" href="{% url 'travel:search' %}?q={{ room.destination|urlencode }}">Accommodation</a>
+      <a href="{% url 'travel:maps_room' room.slug %}">Maps</a>
+      <a href="{% url 'travel:reviews_room' room.slug %}">Reviews</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <section class="room-hero">
+    <div class="room-hero-image">
+      <img src="{% static room.image %}" alt="{{ room.name }}">
+      <button class="love-btn" type="button" aria-label="Add favorite">♡</button>
+    </div>
+    <aside class="room-info-panel">
+      <span class="room-badge">{{ room.badge }}</span>
+      <h1>{{ room.name }}</h1>
+      <p class="room-location">📍 {{ room.location }}</p>
+      <div class="stars room-stars">
+        {% for i in "12345" %}
+        <b>{% if forloop.counter <= room.stars %}★{% else %}☆{% endif %}</b>
+        {% endfor %}
+      </div>
+      <p class="room-desc">{{ room.description }}</p>
+
+      <div class="room-price-row">
+        <div>
+          <small>Harga mulai</small>
+          <strong>{{ room.price }}</strong>
+          <span>per night</span>
+        </div>
+        <a class="btn btn-primary" href="{% url 'travel:booking_dates' room.slug %}">Reserve Room</a>
+      </div>
+      <div class="room-extra-actions">
+        <a href="{% url 'travel:maps_room' room.slug %}">📍 Lihat Maps</a>
+        <a href="{% url 'travel:reviews_room' room.slug %}">⭐ Reviews</a>
+        <a href="{% url 'travel:help' %}">💬 Help</a>
+      </div>
+    </aside>
+  </section>
+
+  <section class="room-details-grid">
+    <article class="room-feature-card">
+      <p class="eyebrow">Facilities</p>
+      <h2>Yang tersedia</h2>
+      <div class="feature-list">
+        {% for item in room.features %}
+        <span>✓ {{ item }}</span>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="booking-flow-card">
+      <p class="eyebrow">Booking Flow</p>
+      <h2>Alur reservasi</h2>
+      <div class="flow-steps">
+        <span><b>1</b> Pilih tanggal</span>
+        <span><b>2</b> Atur jumlah kamar</span>
+        <span><b>3</b> Konfirmasi booking</span>
+      </div>
+    </article>
+  </section>
+
+  {% if similar_rooms %}
+  <section class="similar-section">
+    <div class="best-heading">
+      <div>
+        <p class="eyebrow">Similar Room</p>
+        <h2>Rekomendasi lain</h2>
+      </div>
+    </div>
+    <div class="similar-grid">
+      {% for item in similar_rooms %}
+      <a class="similar-card" href="{% url 'travel:room_detail' item.slug %}">
+        <img src="{% static item.image %}" alt="{{ item.name }}">
+        <div>
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.price }} / Night</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

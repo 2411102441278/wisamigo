@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs><linearGradient id="lake" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bef264"/><stop offset=".55" stop-color="#22c55e"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs>
+  <rect width="900" height="520" fill="#dcfce7"/>
+  <path d="M0 300 C200 240 345 325 515 275 C680 226 770 260 900 230 L900 520 L0 520Z" fill="url(#lake)"/>
+  <g fill="#166534" opacity=".9"><circle cx="90" cy="205" r="95"/><circle cx="220" cy="185" r="140"/><circle cx="720" cy="178" r="135"/><circle cx="840" cy="225" r="90"/></g>
+  <g transform="translate(250 120)">
+    <rect x="90" y="150" width="320" height="150" rx="18" fill="#7c2d12"/>
+    <path d="M80 156 C130 60 374 60 420 156 Z" fill="#334155"/>
+    <path d="M124 156 C168 92 330 92 376 156 Z" fill="#475569"/>
+    <rect x="135" y="188" width="58" height="70" rx="8" fill="#93c5fd"/><rect x="242" y="188" width="58" height="70" rx="8" fill="#93c5fd"/><rect x="330" y="190" width="38" height="110" rx="6" fill="#422006"/>
+    <rect x="36" y="300" width="440" height="18" rx="9" fill="#422006"/>
+    <rect x="60" y="318" width="16" height="70" fill="#422006"/><rect x="424" y="318" width="16" height="70" fill="#422006"/>
+  </g>
+  <path d="M0 408 C190 370 325 440 520 395 C685 357 785 405 900 380 L900 520 L0 520Z" fill="#0891b2" opacity=".4"/>
+</svg>

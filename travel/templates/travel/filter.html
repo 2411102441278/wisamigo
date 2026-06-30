@@ -1,0 +1,154 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Filter Accommodation - Wisamigo{% endblock %}
+{% block content %}
+<div class="filter-page">
+  <header class="search-header filter-header">
+    <a class="back-link" href="{% url 'travel:search' %}?q={{ query|default:'Pulau Derawan'|urlencode }}" aria-label="Back to search">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:search' %}?q={{ query|default:'Pulau Derawan'|urlencode }}">Accommodation</a>
+      <a class="active" href="{% url 'travel:filter' %}?q={{ query|urlencode }}">Filter</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <main class="filter-layout">
+    <aside class="filter-card">
+      <div class="filter-title-row">
+        <div>
+          <p class="eyebrow">Filter</p>
+          <h1>Filter</h1>
+        </div>
+        <a href="{% url 'travel:search' %}?q={{ query|default:'Pulau Derawan'|urlencode }}">×</a>
+      </div>
+
+      <form method="get" id="filterForm">
+        <label class="filter-search-box">
+          <span>Search destination</span>
+          <input type="text" name="q" value="{{ query }}" list="filterDestinations" placeholder="Cari hotel atau destinasi">
+          <datalist id="filterDestinations">
+            {% for item in all_destinations %}
+            <option value="{{ item }}"></option>
+            {% endfor %}
+          </datalist>
+        </label>
+
+        <div class="filter-section">
+          <div class="filter-section-head">
+            <strong>Price per night</strong>
+            <span>{{ min_price_label }} - {{ max_price_label }}</span>
+          </div>
+          <div class="range-grid">
+            <label>Min
+              <input type="range" name="min_price" min="300000" max="2500000" step="50000" value="{{ min_price }}" id="minPriceRange">
+            </label>
+            <label>Max
+              <input type="range" name="max_price" min="300000" max="2500000" step="50000" value="{{ max_price }}" id="maxPriceRange">
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <strong>Category</strong>
+          <div class="checkbox-grid">
+            {% for category in categories %}
+            <label class="check-item">
+              <input type="checkbox" name="category" value="{{ category }}" {% if category in selected_categories %}checked{% endif %}>
+              <span>{{ category }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-head">
+            <strong>Number of Person</strong>
+            <span>{{ persons }} person</span>
+          </div>
+          <input type="range" name="persons" min="1" max="11" value="{{ persons }}">
+        </div>
+
+        <div class="filter-section">
+          <strong>Hotel Type</strong>
+          <div class="type-switch-list">
+            {% for item in hotel_types %}
+            <label>
+              <span>{{ item }}</span>
+              <input type="radio" name="hotel_type" value="{{ item }}" {% if item == hotel_type %}checked{% endif %}>
+              <i></i>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button class="btn btn-primary apply-filter-btn" type="submit">Apply</button>
+      </form>
+    </aside>
+
+    <section class="filter-results">
+      <div class="filter-results-head">
+        <div>
+          <p class="eyebrow">Result</p>
+          <h2>{{ result_count }} hotel ditemukan</h2>
+        </div>
+        <a href="{% url 'travel:filter' %}">Reset Filter</a>
+      </div>
+
+      <div class="deals-grid filter-deals-grid">
+        {% for deal in results %}
+        <article class="deal-card booking-card">
+          <a class="deal-photo-link" href="{% url 'travel:room_detail' deal.slug %}">
+            <img src="{% static deal.image %}" alt="{{ deal.name }}">
+          </a>
+          <div class="deal-body">
+            <div class="deal-main">
+              <span>{{ deal.category }} • {{ deal.hotel_type }}</span>
+              <h3><a href="{% url 'travel:room_detail' deal.slug %}">{{ deal.name }}</a></h3>
+              <p>{{ deal.location }}</p>
+              <div class="stars" aria-label="Rating {{ deal.stars }} stars">
+                {% for i in "12345" %}
+                <b>{% if forloop.counter <= deal.stars %}★{% else %}☆{% endif %}</b>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="deal-price">
+              <strong>{{ deal.price }}</strong>
+              <small>Per Night</small>
+            </div>
+          </div>
+          <div class="deal-actions">
+            <a href="{% url 'travel:maps_room' deal.slug %}">Maps</a>
+            <a class="reserve-mini" href="{% url 'travel:booking_dates' deal.slug %}">Reserve Room</a>
+          </div>
+        </article>
+        {% empty %}
+        <div class="filter-empty-state">
+          <h3>Hotel tidak ditemukan</h3>
+          <p>Coba turunkan jumlah orang, ubah harga, atau hapus kategori filter.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const form = document.getElementById('filterForm');
+  if (!form) return;
+  const inputs = form.querySelectorAll('input[type="checkbox"], input[type="radio"], input[type="range"]');
+  inputs.forEach(input => {
+    input.addEventListener('change', () => {
+      if (input.type === 'range') return;
+      form.requestSubmit();
+    });
+  });
+})();
+</script>
+{% endblock %}

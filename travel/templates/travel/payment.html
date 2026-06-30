@@ -1,0 +1,417 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+
+{% block title %}Pembayaran - Wisamigo{% endblock %}
+
+{% block content %}
+<div class="payment-page" style="background: #f8fafb;">
+  <header class="home-nav payment-nav">
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+      <a class="active" href="#">Payment</a>
+    </nav>
+  </header>
+
+  {% if no_booking %}
+  <main class="payment-layout">
+    <section class="booking-card-large payment-card centered-card">
+      <p class="eyebrow">Pembayaran</p>
+      <h1>Tidak ada booking</h1>
+      <p>Anda belum memiliki booking yang siap dibayar. Silakan lakukan booking terlebih dahulu.</p>
+      <a class="btn btn-primary" href="{% url 'travel:home' %}">Cari Hotel</a>
+    </section>
+  </main>
+  {% else %}
+  <main style="display: grid; grid-template-columns: 1fr 320px; gap: 20px; max-width: 1100px; margin: 40px auto; padding: 0 20px;">
+    <!-- Payment Methods Section -->
+    <section style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div style="margin-bottom: 30px;">
+        <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 8px; color: #2c3e50;">Pembayaran</h1>
+        <p style="color: #7f8c8d; margin: 0;">Pilih metode pembayaran yang sesuai untuk Anda</p>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            <div style="padding: 12px; background: #d4edda; color: #155724; border-radius: 6px; margin-bottom: 15px; border: 1px solid #c3e6cb;">{{ message }}</div>
+          {% else %}
+            <div style="padding: 12px; background: #fff3cd; color: #856404; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ffeeba;">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" action="{% url 'travel:process_payment' booking.booking_code %}" style="display: flex; flex-direction: column; gap: 20px;">
+        {% csrf_token %}
+
+        <!-- Virtual Account Section -->
+        <div>
+          <h3 style="font-size: 14px; font-weight: 700; color: #2c3e50; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.5px;">Virtual Account</h3>
+          <div style="display: grid; gap: 10px;">
+            <label style="display: flex; align-items: center; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: white;" class="payment-method-item" data-method="va">
+              <input type="radio" name="payment_method" value="bca_va" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer;">
+              <div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: 15px;">BCA Virtual Account</div>
+                <div style="font-size: 12px; color: #7f8c8d; margin-top: 2px;">Transfer ke rekening virtual BCA Anda</div>
+              </div>
+            </label>
+            <label style="display: flex; align-items: center; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: white;" class="payment-method-item" data-method="va">
+              <input type="radio" name="payment_method" value="mandiri_va" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer;">
+              <div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: 15px;">Mandiri Virtual Account</div>
+                <div style="font-size: 12px; color: #7f8c8d; margin-top: 2px;">Transfer ke rekening virtual Mandiri Anda</div>
+              </div>
+            </label>
+            <label style="display: flex; align-items: center; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: white;" class="payment-method-item" data-method="va">
+              <input type="radio" name="payment_method" value="bri_va" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer;">
+              <div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: 15px;">BRI Virtual Account</div>
+                <div style="font-size: 12px; color: #7f8c8d; margin-top: 2px;">Transfer ke rekening virtual BRI Anda</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Virtual Account Payment Panel (hidden initially) -->
+        <div id="va-panel" style="display: none; margin-bottom: 20px;">
+          <div style="background: #0066cc; color: white; padding: 14px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; text-align: center;">
+            ⏱️ Selesaikan pembayaran Anda dalam <span id="timer">10:00</span>
+          </div>
+
+          <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+            <p style="margin: 0; color: #2e7d32; font-size: 14px;">✓ Periksa email Anda untuk instruksi pembayaran.</p>
+          </div>
+
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 16px; color: #2c3e50; font-size: 16px; font-weight: 700;">Silakan Transfer ke</h3>
+            
+            <div id="va-bank-info" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 16px;">
+              <div id="va-bank-name" style="font-size: 18px; font-weight: 700; color: #2c3e50; margin-bottom: 12px;">BCA Virtual Account</div>
+              <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; color: #856404;">
+                ⚠️ <span id="va-bank-note">Anda hanya bisa transfer dari rekening BCA</span>
+              </div>
+
+              <div style="display: grid; gap: 14px;">
+                <div>
+                  <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 4px; font-weight: 600;">Nomor Rekening:</label>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="va-account-number" style="font-size: 16px; font-weight: 700; color: #2c3e50; font-family: monospace;">8272728171800</span>
+                    <button type="button" onclick="copyToClipboard('va-account-number')" style="padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Copy</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 4px; font-weight: 600;">Nama Pemegang:</label>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="va-account-name" style="font-size: 16px; font-weight: 700; color: #2c3e50;">WISAMIGO {{ booking.booking_code }}</span>
+                    <button type="button" onclick="copyToClipboard('va-account-name')" style="padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Copy</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 4px; font-weight: 600;">Jumlah Transfer:</label>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 20px; font-weight: 700; color: #0066cc;">{{ booking.total_price_rupiah }}</span>
+                    <button type="button" onclick="copyToClipboard('va-amount')" style="padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Copy</button>
+                  </div>
+                  <div id="va-amount" style="display: none;">{{ booking.total_price }}</div>
+                </div>
+              </div>
+            </div>
+
+            <h3 style="margin: 20px 0 12px; color: #2c3e50; font-size: 16px; font-weight: 700;">Cara Transfer</h3>
+            <div id="va-instructions" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #ddd;">
+              <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleInstructions(this)">
+                <span style="font-weight: 600; color: #2c3e50;" id="va-bank-app">Livin' by BCA (Yellow)</span>
+                <span style="font-size: 18px; color: #0066cc;">▼</span>
+              </div>
+              <div style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 14px; color: #555; line-height: 1.8;">
+                <ol style="margin: 0; padding-left: 20px;">
+                  <li>Buka aplikasi Livin' by BCA, lalu login dengan akun Anda.</li>
+                  <li>Pilih menu <strong>Pembayaran</strong>, cari '<strong id="va-search-code">100000</strong>' atau '<strong>Wisamigo</strong>' di kolom pencarian.</li>
+                  <li>Masukkan nomor rekening virtual (<strong id="va-copy-account">8272728171800</strong>), lalu tekan OK.</li>
+                  <li>Pastikan detail pembayaran sudah benar: nama merchant (<strong>Wisamigo</strong>) diikuti total tagihan Anda.</li>
+                  <li>Masukkan PIN Anda.</li>
+                  <li>Setelah pembayaran berhasil, simpan bukti pembayaran Anda sebagai referensi.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+<div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 12px; color: #2c3e50; font-size: 16px; font-weight: 700;">
+        Sudah Menyelesaikan Pembayaran?
+    </h3>
+    <p style="margin: 0 0 14px; color: #7f8c8d; font-size: 14px;">
+        Setelah bukti pembayaran Anda diverifikasi oleh admin, klik tombol di bawah untuk mengkonfirmasi.
+    </p>
+
+    {% if payment.status == 'paid' %}
+        <button type="submit" style="width: 100%; padding: 12px; background:#0066cc; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;">
+            ✓ Ya, Saya Sudah Bayar
+        </button>
+        <p style="margin: 12px 0 0; font-size: 12px; color: green; text-align: center;">
+            Pembayaran sudah diverifikasi ✅
+        </p>
+    {% elif payment.status == 'cancelled' %}
+        <button disabled style="width: 100%; padding: 12px; background:#d32f2f; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: not-allowed;">
+            ✗ Pembayaran Ditolak
+        </button>
+        <p style="margin: 12px 0 0; font-size: 12px; color: red; text-align: center;">
+            Pembayaran ditolak ❌
+        </p>
+    {% else %}
+        <button disabled style="width: 100%; padding: 12px; background:#ccc; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: not-allowed;">
+            ⏱ Menunggu Verifikasi Admin
+        </button>
+        <p style="margin: 12px 0 0; font-size: 12px; color: #f57f17; text-align: center;">
+            Button akan aktif setelah admin memverifikasi bukti pembayaran Anda
+        </p>
+    {% endif %}
+</div>
+
+      </form>
+
+        <!-- Payment Proof Upload Section -->
+        <div style="margin-top: 30px; padding: 20px; background: #f8fafb; border-radius: 8px; border: 2px dashed #0066cc;">
+          <h3 style="font-size: 14px; font-weight: 700; color: #2c3e50; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.5px;">📸 Unggah Bukti Pembayaran</h3>
+          <p style="font-size: 13px; color: #7f8c8d; margin: 0 0 15px;">Unggah tangkapan layar atau foto bukti pembayaran Anda. Admin akan memverifikasi dan mengkonfirmasi pembayaran Anda.</p>
+          
+          {% if payment.proof.all %}
+            <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #4caf50;">
+              <p style="margin: 0 0 8px; color: #2e7d32; font-weight: 600; font-size: 13px;">✓ Bukti Pembayaran Sudah Diunggah</p>
+              {% for proof in payment.proof.all %}
+                <div style="font-size: 12px; color: #555;">
+                  <p style="margin: 4px 0;">Status: 
+                    {% if proof.verification_status == 'verified' %}
+                      <span style="color: #4caf50; font-weight: 600;">✓ Terverifikasi</span>
+                    {% elif proof.verification_status == 'rejected' %}
+                      <span style="color: #d32f2f; font-weight: 600;">✗ Ditolak</span>
+                    {% else %}
+                      <span style="color: #f57f17; font-weight: 600;">⏱ Menunggu Verifikasi</span>
+                    {% endif %}
+                  </p>
+                  {% if proof.admin_notes %}
+                    <p style="margin: 4px 0; color: #d32f2f;">Catatan: {{ proof.admin_notes }}</p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          <form method="post" action="{% url 'travel:upload_payment_proof' booking.booking_code %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 12px;">
+            {% csrf_token %}
+            
+            <div style="position: relative; border: 2px dashed #ddd; border-radius: 6px; padding: 20px; text-align: center; background: white; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('proof-upload').click();" id="upload-zone">
+              <input type="file" id="proof-upload" name="proof_image" accept="image/*" style="display: none;" onchange="updateFileName(this)">
+              <p style="margin: 0 0 8px; color: #2c3e50; font-weight: 600;">Klik atau Drag & Drop File</p>
+              <p style="margin: 0; font-size: 12px; color: #7f8c8d;">JPG, PNG, GIF, WebP (Maks 5MB)</p>
+              <p id="file-name" style="margin: 8px 0 0; font-size: 12px; color: #0066cc; font-weight: 600; display: none;"></p>
+            </div>
+            
+            <button type="submit" style="padding: 12px; background: #0066cc; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+              Unggah Bukti Pembayaran
+            </button>
+          </form>
+        </div>
+    </section>
+
+    <!-- Booking Summary Sidebar -->
+    <aside style="height: fit-content; position: sticky; top: 20px;">
+      <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <p style="font-size: 12px; font-weight: 600; color: #7f8c8d; margin: 0 0 8px; text-transform: uppercase;">Ringkasan Pesanan</p>
+        <h3 style="font-size: 16px; font-weight: 700; color: #2c3e50; margin: 0 0 15px;">{{ booking.room.name }}</h3>
+        
+        <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+            <span style="color: #7f8c8d;">Check-in</span>
+            <strong style="color: #2c3e50;">{{ booking.checkin }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+            <span style="color: #7f8c8d;">Check-out</span>
+            <strong style="color: #2c3e50;">{{ booking.checkout }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+            <span style="color: #7f8c8d;">Malam</span>
+            <strong style="color: #2c3e50;">{{ booking.nights }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+            <span style="color: #7f8c8d;">Kamar</span>
+            <strong style="color: #2c3e50;">{{ booking.rooms_count }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px;">
+            <span style="color: #7f8c8d;">Tamu</span>
+            <strong style="color: #2c3e50;">{{ booking.adults }} + {{ booking.children }}</strong>
+          </div>
+        </div>
+
+        <div style="padding-bottom: 15px; border-bottom: 1px solid #e0e0e0; margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span style="color: #7f8c8d;">Harga Kamar</span>
+            <span style="color: #2c3e50;">{{ booking.total_price_rupiah }}</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 14px; font-weight: 600; color: #2c3e50;">Total</span>
+          <strong style="font-size: 20px; color: #0d6efd;">{{ booking.total_price_rupiah }}</strong>
+        </div>
+      </div>
+    </aside>
+  </main>
+  {% endif %}
+</div>
+
+<style>
+.payment-method-item:has(input:checked) {
+  border-color: #0d6efd !important;
+  background: #f0f7ff !important;
+}
+
+.payment-method-item:hover {
+  border-color: #0d6efd;
+  background: #f8fafb;
+}
+
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+  
+  aside {
+    position: static !important;
+  }
+}
+</style>
+
+<script>
+// VA bank details mapping
+const vaDetails = {
+  'bca_va': {
+    name: 'BCA Virtual Account',
+    app: 'Livin\' by BCA (Yellow)',
+    note: 'Anda hanya bisa transfer dari rekening BCA',
+    accountNumber: '8272728171800',
+    searchCode: '100000',
+  },
+  'mandiri_va': {
+    name: 'Mandiri Virtual Account',
+    app: 'Livin\' by Mandiri (Yellow)',
+    note: 'Anda hanya bisa transfer dari rekening Mandiri',
+    accountNumber: '2222752322904',
+    searchCode: '22222',
+  },
+  'bri_va': {
+    name: 'BRI Virtual Account',
+    app: 'BRI Mobile',
+    note: 'Anda hanya bisa transfer dari rekening BRI',
+    accountNumber: '000803123456789',
+    searchCode: '88888',
+  }
+};
+
+// Copy to clipboard function
+function copyToClipboard(elementId) {
+  const element = document.getElementById(elementId);
+  const text = element.textContent || element.value;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Disalin ke clipboard!');
+  });
+}
+
+// Toggle instructions section
+function toggleInstructions(element) {
+  const content = element.nextElementSibling;
+  content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  element.querySelector('span:last-child').style.transform = content.style.display === 'none' ? '' : 'rotate(180deg)';
+}
+
+// Countdown timer
+function startTimer(duration) {
+  let time = duration;
+  setInterval(() => {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+    document.getElementById('timer').textContent = 
+      (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    if (time > 0) time--;
+  }, 1000);
+}
+
+// File upload handler
+function updateFileName(input) {
+  const fileName = document.getElementById('file-name');
+  if (input.files && input.files[0]) {
+    fileName.textContent = '✓ ' + input.files[0].name;
+    fileName.style.display = 'block';
+  }
+}
+
+// Drag & drop functionality
+const uploadZone = document.getElementById('upload-zone');
+const proofInput = document.getElementById('proof-upload');
+
+if (uploadZone && proofInput) {
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#0066cc';
+    uploadZone.style.backgroundColor = '#f0f7ff';
+  });
+
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.style.borderColor = '#ddd';
+    uploadZone.style.backgroundColor = 'white';
+  });
+
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#ddd';
+    uploadZone.style.backgroundColor = 'white';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      proofInput.files = e.dataTransfer.files;
+      updateFileName(proofInput);
+    }
+  });
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const methodItems = document.querySelectorAll('.payment-method-item input[type="radio"]');
+  const vaPanel = document.getElementById('va-panel');
+  
+  startTimer(600); // 10 minutes countdown
+
+  function updateUI() {
+    const selected = document.querySelector('input[name="payment_method"]:checked');
+    if (!selected) return;
+
+    const value = selected.value;
+
+    if (vaPanel) vaPanel.style.display = 'none';
+
+    if (value === 'bca_va' || value === 'mandiri_va' || value === 'bri_va') {
+      const details = vaDetails[value];
+      document.getElementById('va-bank-name').textContent = details.name;
+      document.getElementById('va-bank-app').textContent = details.app;
+      document.getElementById('va-bank-note').textContent = details.note;
+      document.getElementById('va-account-number').textContent = details.accountNumber;
+      document.getElementById('va-search-code').textContent = details.searchCode;
+      document.getElementById('va-copy-account').textContent = details.accountNumber;
+      if (vaPanel) vaPanel.style.display = 'block';
+    }
+  }
+
+  methodItems.forEach(item => item.addEventListener('change', updateUI));
+  // Set first option as selected and update UI
+  if (methodItems.length > 0) {
+    methodItems[0].checked = true;
+    updateUI();
+  }
+});
+</script>
+{% endblock %}

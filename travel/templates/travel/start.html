@@ -1,0 +1,40 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Start - Wisamigo{% endblock %}
+{% block content %}
+<div class="start-screen">
+  <img class="start-bg" src="{% static 'travel/img/sienna-resort-maratua.jpeg' %}" alt="Wisata alam Kalimantan">
+  <div class="start-overlay"></div>
+
+  <header class="start-header">
+    <a class="brand light" href="{% url 'travel:start' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <div class="start-links">
+      <a href="{% url 'travel:login' %}">Login</a>
+      <a class="start-register" href="{% url 'travel:register' %}">Register</a>
+    </div>
+  </header>
+
+  <main class="start-content">
+    <div class="start-logo">
+      <img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo">
+    </div>
+    <p class="start-kicker">Travel Website</p>
+    <h1>wisamigo</h1>
+    <p class="start-desc">Temukan destinasi wisata terbaik, mulai dari Pulau Derawan, Bukit Bangkirai, sampai tempat liburan populer lainnya.</p>
+
+    <div class="start-actions">
+      <a class="btn-start" href="{% url 'travel:register' %}">Let’s Begin</a>
+      <a class="btn-start-outline" href="{% url 'travel:register' %}">Create Account</a>
+    </div>
+
+    <label class="start-terms">
+      <input type="checkbox">
+      <span>I agree <u>Terms of Use</u> &amp; <u>Privacy Policy</u></span>
+    </label>
+  </main>
+
+</div>
+{% endblock %}

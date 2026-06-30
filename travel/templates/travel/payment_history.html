@@ -1,0 +1,501 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+
+{% block title %}Riwayat Pembayaran - Wisamigo{% endblock %}
+
+{% block content %}
+<style>
+  .history-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+
+  .history-header {
+    margin-bottom: 40px;
+  }
+
+  .history-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+
+  .history-header p {
+    color: #7f8c8d;
+    margin: 0;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    color: #7f8c8d;
+  }
+
+  .filter-btn:hover {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  .filter-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+
+  .payment-list {
+    display: grid;
+    gap: 20px;
+  }
+
+  .payment-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    transition: all 0.3s;
+  }
+
+  .payment-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .payment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+
+  .payment-card-title {
+    flex: 1;
+  }
+
+  .payment-card-title h3 {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+    font-size: 18px;
+  }
+
+  .booking-code {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin: 0;
+    font-family: monospace;
+  }
+
+  .payment-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-paid {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .status-failed {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-cancelled {
+    background-color: #e2e3e5;
+    color: #383d41;
+  }
+
+  .payment-card-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .payment-card-info {
+    display: flex;
+    gap: 15px;
+  }
+
+  .room-image {
+    width: 80px;
+    height: 80px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .room-info {
+    flex: 1;
+  }
+
+  .room-info h4 {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+    font-size: 15px;
+  }
+
+  .room-info p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 13px;
+  }
+
+  .payment-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .detail-row label {
+    color: #7f8c8d;
+  }
+
+  .detail-row .value {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .payment-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .amount-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0d6efd;
+  }
+
+  .action-links {
+    display: flex;
+    gap: 10px;
+  }
+
+  .action-link {
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .action-link-primary {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .action-link-primary:hover {
+    background-color: #0b5ed7;
+  }
+
+  .action-link-secondary {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+  }
+
+  .action-link-secondary:hover {
+    background-color: #e9ecef;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+  }
+
+  .empty-title {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .empty-text {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: #0d6efd;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+
+  .cta-button:hover {
+    background-color: #0b5ed7;
+  }
+
+  .stats-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+  }
+
+  .stat-card.paid {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  }
+
+  .stat-card.pending {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  }
+
+  .stat-label {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .payment-card-content {
+      grid-template-columns: 1fr;
+    }
+
+    .payment-card-header {
+      flex-direction: column;
+    }
+
+    .payment-status {
+      margin-top: 10px;
+    }
+
+    .stats-box {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-tabs {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="history-container">
+  {% if not user.is_authenticated %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 8px;">
+      <h2 style="color: #2c3e50; margin-bottom: 15px;">Silakan Login</h2>
+      <p style="color: #7f8c8d; margin-bottom: 25px;">Anda harus login untuk melihat riwayat pembayaran Anda.</p>
+      <a href="{% url 'travel:login' %}" class="cta-button">Login Sekarang</a>
+    </div>
+  {% else %}
+    <div class="history-header">
+      <h1>Riwayat Pembayaran</h1>
+      <p>Kelola dan lihat semua transaksi pembayaran Anda</p>
+    </div>
+
+    <!-- Statistics -->
+    {% if payments %}
+      <div class="stats-box">
+        <div class="stat-card">
+          <div class="stat-label">Total Transaksi</div>
+          <div class="stat-value">{{ payments.count }}</div>
+        </div>
+        <div class="stat-card paid">
+          <div class="stat-label">Pembayaran Berhasil</div>
+          <div class="stat-value">{{ payments|dictsort:"status"|length }}</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-label">Menunggu Pembayaran</div>
+          <div class="stat-value">{{ payments|length }}</div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="filter-btn active" onclick="filterPayments('all')">Semua</button>
+      <button class="filter-btn" onclick="filterPayments('paid')">Berhasil Dibayar</button>
+      <button class="filter-btn" onclick="filterPayments('pending')">Menunggu Pembayaran</button>
+      <button class="filter-btn" onclick="filterPayments('failed')">Gagal</button>
+    </div>
+
+    <!-- Payment List -->
+    {% if payments %}
+      <div class="payment-list">
+        {% for payment in payments %}
+          <div class="payment-card" data-status="{{ payment.status }}">
+            <div class="payment-card-header">
+              <div class="payment-card-title">
+                <h3>{{ payment.booking.room.name }}</h3>
+                <p class="booking-code">Kode Pesanan: {{ payment.booking.booking_code }}</p>
+              </div>
+              <span class="payment-status status-{{ payment.status }}">
+                {% if payment.status == 'paid' %}
+                  ✓ Dibayar
+                {% elif payment.status == 'pending' %}
+                  ⏱ Menunggu
+                {% elif payment.status == 'failed' %}
+                  ✗ Gagal
+                {% elif payment.status == 'cancelled' %}
+                  ✗ Dibatalkan
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="payment-card-content">
+              <!-- Room Info -->
+              <div class="payment-card-info">
+                <div class="room-image">
+                  <img src="{% static payment.booking.room.image %}" alt="{{ payment.booking.room.name }}" onerror="this.src='{% static 'travel/img/resort-derawan.svg' %}';">
+                </div>
+                <div class="room-info">
+                  <h4>{{ payment.booking.room.destination.name }}</h4>
+                  <p>{{ payment.booking.room.location }}</p>
+                  <p style="margin-top: 8px;">
+                    <strong>Check-in:</strong> {{ payment.booking.checkin }}<br>
+                    <strong>Check-out:</strong> {{ payment.booking.checkout }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Payment Details -->
+              <div class="payment-details">
+                <div class="detail-row">
+                  <label>Metode Pembayaran</label>
+                  <span class="value">
+                    {% if payment.payment_method == 'credit_card' %}
+                      Kartu Kredit
+                    {% elif payment.payment_method == 'bca_va' %}
+                      BCA Virtual Account
+                    {% elif payment.payment_method == 'mandiri_va' %}
+                      Mandiri Virtual Account
+                    {% elif payment.payment_method == 'bri_va' %}
+                      BRI Virtual Account
+                    {% elif payment.payment_method == 'bank_transfer' %}
+                      Transfer Bank
+                    {% elif payment.payment_method == 'gopay' %}
+                      GoPay (QR)
+                    {% elif payment.payment_method == 'ovo' %}
+                      OVO (QR)
+                    {% elif payment.payment_method == 'e_wallet' %}
+                      E-Wallet
+                    {% endif %}
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <label>ID Transaksi</label>
+                  <span class="value" style="font-size: 12px; font-family: monospace;">{{ payment.transaction_id }}</span>
+                </div>
+                <div class="detail-row">
+                  <label>Tanggal Pembayaran</label>
+                  <span class="value">{{ payment.updated_at|date:"d M Y H:i" }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="payment-card-footer">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="amount-total">{{ payment.amount_rupiah }}</div>
+                {% if payment.payment_method == 'gopay' and payment.status == 'pending' %}
+                  <img src="{% static 'travel/img/gopay-qr.svg' %}" alt="GoPay QR" style="width:64px;height:64px;border-radius:8px;border:1px solid #e6eef8;" />
+                {% elif payment.payment_method == 'ovo' and payment.status == 'pending' %}
+                  <img src="{% static 'travel/img/ovo-qr.svg' %}" alt="OVO QR" style="width:64px;height:64px;border-radius:8px;border:1px solid #fbe7f0;" />
+                {% endif %}
+              </div>
+              <div class="action-links">
+                <a href="{% url 'travel:payment_success' payment.booking.booking_code %}" class="action-link action-link-primary">Detail</a>
+                {% if payment.status == 'pending' %}
+                  <a href="{% url 'travel:payment' payment.booking.booking_code %}" class="action-link action-link-secondary">Lanjutkan Bayar</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">Belum Ada Riwayat Pembayaran</div>
+        <p class="empty-text">Anda belum memiliki riwayat pembayaran. Mulai dengan memesan akomodasi favorit Anda!</p>
+        <a href="{% url 'travel:home' %}" class="cta-button">Cari Akomodasi</a>
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+
+<script>
+function filterPayments(status) {
+  const cards = document.querySelectorAll('.payment-card');
+  const buttons = document.querySelectorAll('.filter-btn');
+
+  // Update active button
+  buttons.forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // Filter cards
+  cards.forEach(card => {
+    if (status === 'all' || card.dataset.status === status) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+{% endblock %}

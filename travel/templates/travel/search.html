@@ -1,0 +1,93 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Search - {{ query }}{% endblock %}
+{% block content %}
+<div class="search-page">
+  <header class="search-header">
+    <a class="back-link" href="{% url 'travel:home' %}" aria-label="Back to dashboard">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a class="active" href="{% url 'travel:search' %}?q={{ query|urlencode }}">Accommodation</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+      <a href="{% url 'travel:logout' %}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="search-hero">
+    <section>
+      <p class="eyebrow">Accommodation</p>
+      <h1>{{ query }}</h1>
+      <p>{{ result.subtitle }}</p>
+
+      <form class="result-search" action="{% url 'travel:search' %}" method="get">
+        <input type="text" name="q" value="{{ query }}" list="search-options" placeholder="Search destination">
+        <datalist id="search-options">
+          {% for item in all_destinations %}
+          <option value="{{ item }}"></option>
+          {% endfor %}
+        </datalist>
+        <button type="submit">🔍</button>
+      </form>
+
+      <div class="destination-tabs">
+        {% for item in all_destinations %}
+        <a class="{% if item == query %}active{% endif %}" href="{% url 'travel:search' %}?q={{ item|urlencode }}">{{ item }}</a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <aside class="search-visual">
+      <img src="{% static result.hero %}" alt="{{ query }}">
+      <div>
+        <span>Search Result</span>
+        <strong>{{ query }}</strong>
+      </div>
+    </aside>
+  </main>
+
+  <section class="best-deals">
+    <div class="best-heading">
+      <div>
+        <p class="eyebrow">Best Deals</p>
+        <h2>Accommodation</h2>
+      </div>
+      <a href="{% url 'travel:filter' %}?q={{ query|urlencode }}">Filter ☰</a>
+    </div>
+
+    <div class="deals-grid">
+      {% for deal in deals %}
+      <article class="deal-card booking-card">
+        <a class="deal-photo-link" href="{% url 'travel:room_detail' deal.slug %}">
+          <img src="{% static deal.image %}" alt="{{ deal.name }}">
+        </a>
+        <div class="deal-body">
+          <div class="deal-main">
+            <span>{{ deal.badge }}</span>
+            <h3><a href="{% url 'travel:room_detail' deal.slug %}">{{ deal.name }}</a></h3>
+            <p>{{ deal.location }}</p>
+            <div class="stars" aria-label="Rating {{ deal.stars }} stars">
+              {% for i in "12345" %}
+              <b>{% if forloop.counter <= deal.stars %}★{% else %}☆{% endif %}</b>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="deal-price">
+            <strong>{{ deal.price }}</strong>
+            <small>Per Night</small>
+          </div>
+        </div>
+        <div class="deal-actions">
+          <a href="{% url 'travel:room_detail' deal.slug %}">View Room</a>
+          <a class="reserve-mini" href="{% url 'travel:booking_dates' deal.slug %}">Reserve Room</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+

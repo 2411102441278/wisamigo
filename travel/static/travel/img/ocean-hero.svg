@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 430" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#20aaf1"/>
+      <stop offset=".46" stop-color="#8bd9ff"/>
+      <stop offset=".47" stop-color="#23c3d7"/>
+      <stop offset="1" stop-color="#0bb0c9"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16d3e3"/>
+      <stop offset=".55" stop-color="#13b6ce"/>
+      <stop offset="1" stop-color="#088bac"/>
+    </linearGradient>
+  </defs>
+  <rect width="390" height="430" fill="url(#sky)"/>
+  <rect y="202" width="390" height="228" fill="url(#water)"/>
+  <g fill="#fff" opacity=".85">
+    <ellipse cx="62" cy="79" rx="35" ry="10"/>
+    <ellipse cx="87" cy="75" rx="25" ry="8"/>
+    <ellipse cx="260" cy="64" rx="50" ry="12"/>
+    <ellipse cx="296" cy="62" rx="32" ry="9"/>
+  </g>
+  <g opacity=".36" stroke="#eaffff" stroke-width="2" fill="none">
+    <path d="M-20 235c61-18 122-16 184 0s124 17 246-11"/>
+    <path d="M-25 285c67-17 146-15 217 7 58 17 117 10 216-14"/>
+    <path d="M-20 340c79 21 168 21 250 1 50-12 91-14 181 9"/>
+  </g>
+  <g transform="translate(228 74)">
+    <polygon points="75,0 153,45 -1,45" fill="#53351f"/>
+    <rect x="12" y="45" width="127" height="72" fill="#d6ba7a"/>
+    <rect x="27" y="59" width="35" height="30" fill="#78482f"/>
+    <rect x="83" y="58" width="37" height="47" fill="#865033"/>
+    <path d="M11 117h128" stroke="#2b241c" stroke-width="5"/>
+    <path d="M24 117v85M125 117v85" stroke="#422a1b" stroke-width="6"/>
+  </g>
+  <g transform="translate(11 97)">
+    <polygon points="58,0 125,38 -6,38" fill="#5b351f"/>
+    <rect x="6" y="38" width="112" height="71" fill="#cc9c55"/>
+    <rect x="23" y="54" width="31" height="28" fill="#704429"/>
+    <rect x="73" y="51" width="29" height="45" fill="#7f4c2e"/>
+    <path d="M5 109h113" stroke="#2b241c" stroke-width="5"/>
+    <path d="M20 109v111M103 109v111" stroke="#422a1b" stroke-width="6"/>
+  </g>
+  <path d="M-10 213h155l-9 18H-8Z" fill="#8b6339"/>
+  <path d="M112 213c57 7 127 6 201-5 35-5 74-15 94-29" fill="none" stroke="#7d5635" stroke-width="8"/>
+  <g stroke="#ffffff" stroke-width="3" opacity=".75">
+    <path d="M38 258h35M97 274h50M247 263h48M290 316h55M122 357h60"/>
+  </g>
+  <g fill="#0b4b56" opacity=".45">
+    <path d="M0 388c57-23 113-26 169-7 61 22 132 21 221-9v58H0Z"/>
+  </g>
+</svg>

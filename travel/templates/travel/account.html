@@ -1,0 +1,95 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Account - Wisamigo{% endblock %}
+{% block content %}
+<div class="account-page">
+  <header class="home-nav account-nav">
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">Search</a>
+      <a href="{% url 'travel:payment_history' %}">Riwayat Pembayaran</a>
+      {% if is_staff %}
+      <a href="{% url 'travel:admin_payment_dashboard' %}">Admin</a>
+      {% endif %}
+      <a class="active" href="{% url 'travel:account' %}">Account</a>
+      <a href="{% url 'travel:logout' %}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="account-layout">
+    <section class="account-profile-card">
+      <div class="profile-top">
+        <div>
+          <h1>{{ profile.username }}</h1>
+          <span>View and edit your profile</span>
+        </div>
+        <div class="avatar">
+          <span></span>
+        </div>
+      </div>
+
+
+      {% if latest_bookings %}
+      <div class="account-booking-history">
+        <h3>Riwayat Booking</h3>
+        {% for booking in latest_bookings %}
+        <div class="booking-history-item">
+          <strong>{{ booking.room.name }}</strong>
+          <span>{{ booking.booking_code }} · {{ booking.checkin }} - {{ booking.checkout }}</span>
+          <b>{{ booking.total_price_rupiah }}</b>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="profile-menu">
+        {% for menu in account_menu %}
+        <a href="{% if menu.url_name %}{% url menu.url_name %}{% else %}#{% endif %}">
+          <div>
+            <strong>{{ menu.title }}</strong>
+            <span>{{ menu.desc }}</span>
+          </div>
+          <em>{{ menu.icon }}</em>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="account-edit-card">
+      <p class="eyebrow">Profile Form</p>
+      <h2>Edit Profile</h2>
+      <p class="account-help">Bagian kanan dibuat versi desktop dari tampilan account di foto: lebih lebar, rapi, dan cocok untuk web.</p>
+
+      <form class="profile-form">
+        <label>
+          Full Name
+          <input type="text" value="{{ profile.username }}">
+        </label>
+        <label>
+          Email
+          <input type="email" value="{{ profile.email }}">
+        </label>
+        <label>
+          Phone Number
+          <input type="text" value="{{ profile.phone }}">
+        </label>
+        <label>
+          Favorite Destination
+          <select>
+            <option>Pulau Derawan</option>
+            <option>Bukit Bangkirai</option>
+            <option>Pulau Kumala</option>
+            <option>Labuan Cermin</option>
+          </select>
+        </label>
+        <a class="btn btn-primary" href="{% url 'travel:edit_profile' %}">Edit Profile</a>
+      </form>
+    </section>
+  </main>
+</div>
+{% endblock %}

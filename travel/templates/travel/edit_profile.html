@@ -1,0 +1,79 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Edit Profile - Wisamigo{% endblock %}
+{% block content %}
+<div class="edit-profile-page">
+  <header class="search-header edit-profile-header">
+    <a class="back-link" href="{% url 'travel:account' %}" aria-label="Back to account">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Home</a>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">Search</a>
+      <a class="active" href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <main class="edit-profile-layout">
+    <section class="edit-profile-card">
+      <div class="edit-profile-title">
+        <div>
+          <p class="eyebrow">Edit Profile</p>
+          <h1>Edit Profile</h1>
+          <span>Ubah data akun sesuai tampilan referensi.</span>
+        </div>
+        <a class="small-action" href="{% url 'travel:account' %}">Account</a>
+      </div>
+
+      {% if saved %}
+      <div class="success-alert">Profile berhasil disimpan.</div>
+      {% endif %}
+
+      <form class="edit-profile-form" method="post">
+        {% csrf_token %}
+        <div class="edit-avatar-block">
+          <div class="avatar big-avatar"><span></span></div>
+          <button type="button" class="camera-btn">📷</button>
+        </div>
+
+        <label class="profile-row">
+          <span>Username</span>
+          <input type="text" name="username" value="{{ profile.username }}">
+        </label>
+        <label class="profile-row">
+          <span>Email</span>
+          <input type="email" name="email" value="{{ profile.email }}">
+        </label>
+        <label class="profile-row">
+          <span>Phone</span>
+          <input type="text" name="phone" value="{{ profile.phone }}">
+        </label>
+        <label class="profile-row">
+          <span>Date of Birth</span>
+          <input type="text" name="birth_date" value="{{ profile.birth_date }}" placeholder="YYYY-MM-DD">
+        </label>
+        <label class="profile-row">
+          <span>Address</span>
+          <input type="text" name="address" value="{{ profile.address }}">
+        </label>
+
+        <button class="btn btn-primary save-profile-btn" type="submit">Save Profile</button>
+      </form>
+    </section>
+
+    <aside class="edit-profile-preview">
+      <p class="eyebrow">Preview</p>
+      <h2>{{ profile.username }}</h2>
+      <p>{{ profile.email }}</p>
+      <div class="preview-list">
+        <span><b>Phone</b>{{ profile.phone }}</span>
+        <span><b>Date of Birth</b>{{ profile.birth_date }}</span>
+        <span><b>Address</b>{{ profile.address }}</span>
+      </div>
+      <a class="btn btn-primary" href="{% url 'travel:home' %}">Back to Dashboard</a>
+    </aside>
+  </main>
+</div>
+{% endblock %}

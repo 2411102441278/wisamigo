@@ -1,0 +1,61 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Login - Wisamigo{% endblock %}
+{% block content %}
+<div class="auth-desktop">
+  <section class="auth-left">
+    <a class="brand light" href="{% url 'travel:start' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+
+    <div class="auth-left-text">
+      <p class="kicker-light">Login</p>
+      <h1>Welcome to Wisamigo</h1>
+      <p>Masuk untuk melihat dashboard destinasi wisata pilihan.</p>
+    </div>
+
+    <img src="{% static 'travel/img/noah-maratua-resort.jpeg' %}" alt="Pulau Derawan">
+  </section>
+
+  <section class="auth-right">
+    <div class="auth-box">
+      <div class="auth-title">
+        <h2>Welcome to Wisamigo</h2>
+        <span>Enter your details to move forward</span>
+      </div>
+
+      {% if error %}
+      <div class="form-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" name="email" placeholder="Masukkan email kamu" autocomplete="email">
+
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password" class="input has-icon" type="password" name="password" placeholder="Masukkan password" autocomplete="current-password">
+          <span class="eye-icon" aria-hidden="true"></span>
+        </div>
+
+        <div class="remember-row">
+          <label class="remember">
+            <input type="checkbox">
+            <span>Remember me</span>
+          </label>
+          <a href="{% url 'travel:forgot_password' %}">Forgot password?</a>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Sign in</button>
+      </form>
+
+      <p class="auth-footer">
+        Don’t have an account?
+        <a href="{% url 'travel:register' %}">Sign up here</a>
+      </p>
+    </div>
+  </section>
+</div>
+{% endblock %}

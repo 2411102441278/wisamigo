@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Wisamigo logo">
+  <g fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M35 26h30l9 17-7 38H33l-7-38 9-17Z"/>
+    <path d="M38 26c1-10 23-10 24 0"/>
+    <path d="M36 41h28M40 54h20M42 67h16"/>
+    <path d="M47 36l-8 19 12-5-5 16 15-26-12 6 6-10Z"/>
+    <path d="M28 43l-9-7M72 43l9-7"/>
+  </g>
+</svg>

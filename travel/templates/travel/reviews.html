@@ -1,0 +1,70 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Reviews - {{ room.name }}{% endblock %}
+{% block content %}
+<div class="reviews-page">
+  <header class="search-header reviews-header">
+    <a class="back-link" href="{% url 'travel:room_detail' room.slug %}" aria-label="Back">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:maps_room' room.slug %}">Maps</a>
+      <a class="active" href="{% url 'travel:reviews_room' room.slug %}">Reviews</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <main class="reviews-layout">
+    <section class="reviews-list-card">
+      <div class="reviews-title-row">
+        <div>
+          <p class="eyebrow">Reviews</p>
+          <h1>Reviews ({{ total_reviews }})</h1>
+        </div>
+        <a href="#">View all</a>
+      </div>
+
+      <div class="review-list">
+        {% for review in reviews %}
+        <article class="review-item">
+          <div class="review-avatar">{{ review.avatar }}</div>
+          <div class="review-content">
+            <div class="review-head">
+              <div>
+                <strong>{{ review.name }}</strong>
+                <span>{{ review.time }}</span>
+              </div>
+              <div class="review-rating">
+                <small>Rating</small>
+                <div class="stars">
+                  {% for i in "12345" %}
+                  <b>{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}</b>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <p>{{ review.text }}</p>
+            <a href="#">Reply</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <aside class="review-summary-card">
+      <img src="{% static room.image %}" alt="{{ room.name }}">
+      <div>
+        <span>{{ room.badge }}</span>
+        <h2>{{ room.name }}</h2>
+        <p>{{ room.location }}</p>
+        <div class="rating-big">{{ average_rating }}</div>
+        <p class="rating-caption">Average rating dari {{ total_reviews }} reviews.</p>
+        <a class="btn btn-primary" href="{% url 'travel:booking_dates' room.slug %}">Reserve Room</a>
+      </div>
+    </aside>
+  </main>
+</div>
+{% endblock %}

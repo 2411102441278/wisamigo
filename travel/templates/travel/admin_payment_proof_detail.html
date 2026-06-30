@@ -1,0 +1,93 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+
+{% block title %}Detail Bukti Pembayaran - Wisamigo{% endblock %}
+
+{% block content %}
+<div style="background: #f8fafb; min-height: 100vh; padding-bottom: 60px;">
+  <header class="home-nav payment-nav" style="background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:admin_payment_dashboard' %}">Admin</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+      <a href="{% url 'travel:logout' %}">Logout</a>
+      <a href="{% url 'travel:ai_page' %}">🤖 AI</a>
+    </nav>
+  </header>
+
+  <main style="max-width: 980px; margin: 36px auto 0; padding: 0 20px; display: grid; gap: 24px;">
+    <section style="background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 20px 60px rgba(16, 24, 40, 0.08);">
+      <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:center;">
+        <div>
+          <p class="eyebrow" style="margin:0; letter-spacing:0.08em; text-transform: uppercase; color:#0f172a; font-size:12px;">Detail Bukti Pembayaran</p>
+          <h1 style="margin: 10px 0 0; font-size: 28px; font-weight: 800;">{{ proof.payment.booking.booking_code }}</h1>
+          <p style="margin: 10px 0 0; color:#475569; max-width: 720px; line-height:1.6;">Verifikasi bukti pembayaran user secara langsung dan lihat detail booking, nominal, dan status titik transfer.</p>
+        </div>
+        <a href="{% url 'travel:admin_payment_dashboard' %}" style="padding:12px 18px; background:#0d6efd; color:white; border-radius:12px; text-decoration:none; font-weight:700;">Kembali ke Dashboard</a>
+      </div>
+    </section>
+
+    <section style="background:white; border-radius:16px; padding:28px 30px; box-shadow:0 20px 60px rgba(16,24,40,0.08); display:grid; gap:24px;">
+      <div style="display:grid; gap:18px;">
+        <div style="display:grid; gap:6px;">
+          <span style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:0.08em;">Informasi Booking</span>
+          <h2 style="margin:0; font-size:20px; color:#0f172a;">{{ proof.payment.booking.room.name }}</h2>
+          <p style="margin:0; color:#475569; font-size:14px;">Kode Booking: <strong>{{ proof.payment.booking.booking_code }}</strong></p>
+          <p style="margin:0; color:#475569; font-size:14px;">User: <strong>{{ proof.payment.booking.user.email if proof.payment.booking.user else 'Guest / Tidak terdaftar' }}</strong></p>
+          <p style="margin:0; color:#475569; font-size:14px;">Tanggal: <strong>{{ proof.payment.booking.checkin }} sampai {{ proof.payment.booking.checkout }}</strong></p>
+        </div>
+
+        <div style="display:grid; gap:10px; padding:20px; background:#f8fafb; border-radius:16px; border:1px solid #e2e8f0;">
+          <div style="display:flex; justify-content:space-between; color:#334155;">
+            <span>Total Pembayaran</span>
+            <strong>{{ proof.payment.amount_rupiah }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:#334155;">
+            <span>Status Pembayaran</span>
+            <strong>{{ proof.payment.status|capfirst }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:#334155;">
+            <span>Status Verifikasi</span>
+            <strong>{{ proof.verification_status|capfirst }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:#334155;">
+            <span>Diunggah</span>
+            <strong>{{ proof.uploaded_at }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; gap:18px;">
+        <div style="background:#f8fafb; border-radius:16px; padding:24px; border:1px solid #e2e8f0;">
+          <h3 style="margin:0 0 14px; font-size:18px; color:#0f172a;">Bukti Pembayaran</h3>
+          {% if proof.image %}
+          <a href="{{ proof.image.url }}" target="_blank" style="display:block; max-width:100%;">
+            <img src="{{ proof.image.url }}" alt="Bukti pembayaran {{ proof.payment.booking.booking_code }}" style="width:100%; border-radius:16px; object-fit:contain; border:1px solid #d1d5db;">
+          </a>
+          {% else %}
+          <p style="margin:0; color:#64748b;">Tidak ada gambar bukti.</p>
+          {% endif %}
+        </div>
+
+        <div style="background:white; border-radius:16px; padding:24px; border:1px solid #e2e8f0; display:grid; gap:14px;">
+          <h3 style="margin:0 0 12px; font-size:18px; color:#0f172a;">Aksi Verifikasi</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:12px;">
+            <a href="{% url 'travel:admin_verify_payment_proof' proof.id %}" style="padding:12px 18px; background:#16a34a; color:white; border-radius:12px; text-decoration:none; font-weight:700;">Verifikasi Pembayaran</a>
+            <a href="{% url 'travel:admin_reject_payment_proof' proof.id %}" style="padding:12px 18px; background:#dc2626; color:white; border-radius:12px; text-decoration:none; font-weight:700;">Tolak Pembayaran</a>
+          </div>
+          {% if proof.admin_notes %}
+          <div style="padding:16px; background:#f8fafb; border-radius:12px; border:1px solid #e2e8f0;">
+            <strong>Catatan Admin</strong>
+            <p style="margin:8px 0 0; color:#475569;">{{ proof.admin_notes }}</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

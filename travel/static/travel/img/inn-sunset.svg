@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs><linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset=".45" stop-color="#fdba74"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs>
+  <rect width="900" height="520" fill="url(#sunset)"/>
+  <circle cx="190" cy="220" r="74" fill="#f97316" opacity=".55"/>
+  <path d="M0 320 C205 270 375 360 560 305 C705 260 800 295 900 268 L900 520 L0 520Z" fill="#0e7490"/>
+  <path d="M0 390 C220 360 383 420 600 375 C735 347 815 384 900 360 L900 520 L0 520Z" fill="#fde68a"/>
+  <g fill="#14532d"><circle cx="710" cy="226" r="88"/><circle cx="800" cy="205" r="112"/><circle cx="880" cy="240" r="76"/></g>
+  <g transform="translate(605 286)"><rect x="0" y="70" width="210" height="82" rx="8" fill="#0ea5e9"/><path d="M-20 72 L106 0 L230 72 Z" fill="#92400e"/><rect x="43" y="95" width="44" height="34" rx="4" fill="#e0f2fe"/><rect x="124" y="95" width="44" height="34" rx="4" fill="#e0f2fe"/></g>
+  <path d="M70 366 C115 330 165 330 214 368" stroke="#78350f" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M70 366 L214 368" stroke="#78350f" stroke-width="14"/>
+</svg>

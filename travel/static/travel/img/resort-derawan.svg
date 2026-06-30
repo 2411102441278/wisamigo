@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset=".5" stop-color="#bae6fd"/><stop offset="1" stop-color="#67e8f9"/></linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#06b6d4"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#0f766e"/></linearGradient>
+  </defs>
+  <rect width="900" height="520" fill="url(#sky)"/>
+  <circle cx="720" cy="90" r="64" fill="#fef3c7" opacity=".9"/>
+  <path d="M0 252 C170 205 275 292 430 238 C585 185 735 208 900 162 L900 520 L0 520Z" fill="url(#sea)"/>
+  <path d="M0 285 C230 330 388 250 590 295 C720 325 825 313 900 284 L900 520 L0 520Z" fill="#0891b2" opacity=".45"/>
+  <g opacity=".35" stroke="#e0f2fe" stroke-width="6" fill="none">
+    <path d="M18 360 C205 315 331 393 533 340 C700 296 765 356 890 325"/>
+    <path d="M62 425 C260 375 414 440 634 388 C756 359 814 388 894 372"/>
+  </g>
+  <g transform="translate(70 156)">
+    <rect x="20" y="155" width="705" height="18" rx="9" fill="#713f12"/>
+    <g fill="#854d0e">
+      <rect x="60" y="169" width="14" height="100"/><rect x="165" y="169" width="14" height="110"/><rect x="270" y="169" width="14" height="92"/><rect x="382" y="169" width="14" height="110"/><rect x="497" y="169" width="14" height="90"/><rect x="650" y="169" width="14" height="110"/>
+    </g>
+    <g>
+      <rect x="46" y="80" width="175" height="85" rx="8" fill="#b45309"/>
+      <path d="M35 83 L134 28 L235 83 Z" fill="#7c2d12"/>
+      <rect x="76" y="108" width="42" height="34" rx="4" fill="#67e8f9" opacity=".8"/>
+      <rect x="145" y="108" width="42" height="34" rx="4" fill="#67e8f9" opacity=".8"/>
+    </g>
+    <g transform="translate(250 0)">
+      <rect x="46" y="80" width="185" height="85" rx="8" fill="#c2410c"/>
+      <path d="M28 83 L139 22 L250 83 Z" fill="#7c2d12"/>
+      <rect x="84" y="108" width="42" height="34" rx="4" fill="#67e8f9" opacity=".8"/>
+      <rect x="154" y="108" width="42" height="34" rx="4" fill="#67e8f9" opacity=".8"/>
+    </g>
+    <g transform="translate(520 20)">
+      <rect x="30" y="75" width="150" height="70" rx="8" fill="#b45309"/>
+      <path d="M12 78 L105 18 L198 78 Z" fill="#7c2d12"/>
+      <rect x="62" y="98" width="40" height="28" rx="4" fill="#67e8f9" opacity=".8"/>
+    </g>
+  </g>
+</svg>

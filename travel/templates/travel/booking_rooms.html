@@ -1,0 +1,58 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Room Set - {{ room.name }}{% endblock %}
+{% block content %}
+<div class="booking-page">
+  <header class="search-header room-topbar">
+    <a class="back-link" href="{% url 'travel:booking_dates' room.slug %}" aria-label="Back to calendar">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:room_detail' room.slug %}">Room</a>
+      <a href="{% url 'travel:booking_dates' room.slug %}">Calendar</a>
+      <a class="active" href="#">Room Set</a>
+    </nav>
+  </header>
+
+  <main class="booking-layout compact-booking-layout">
+    <section class="booking-summary-box">
+      <p class="eyebrow">Your Stay</p>
+      <h1>{{ room.name }}</h1>
+      <img src="{% static room.image %}" alt="{{ room.name }}">
+      <dl>
+        <div><dt>Check In</dt><dd>{{ checkin_text }}</dd></div>
+        <div><dt>Check Out</dt><dd>{{ checkout_text }}</dd></div>
+        <div><dt>Nights</dt><dd>{{ nights }} malam</dd></div>
+        <div><dt>Price</dt><dd>{{ room.price }} / Night</dd></div>
+      </dl>
+    </section>
+
+    <section class="booking-card-large room-set-card">
+      <div class="booking-step-title">
+        <p class="eyebrow">Room Set</p>
+        <h2>Atur jumlah tamu</h2>
+        <span>Isi jumlah kamar, dewasa, dan anak-anak lalu tekan Apply.</span>
+      </div>
+
+      <form method="post" class="room-set-form">
+        {% csrf_token %}
+        <label>
+          <span>Number of rooms</span>
+          <input type="number" name="rooms" min="1" max="10" value="1">
+        </label>
+        <label>
+          <span>Adult</span>
+          <input type="number" name="adults" min="1" max="20" value="2">
+        </label>
+        <label>
+          <span>Children</span>
+          <input type="number" name="children" min="0" max="20" value="0">
+        </label>
+        <button class="btn btn-primary" type="submit">Apply Booking</button>
+      </form>
+    </section>
+  </main>
+</div>
+{% endblock %}

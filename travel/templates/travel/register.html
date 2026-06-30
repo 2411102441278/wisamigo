@@ -1,0 +1,56 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Register - Wisamigo{% endblock %}
+{% block content %}
+<div class="auth-desktop register-desktop">
+  <section class="auth-right">
+    <div class="auth-box">
+      <div class="auth-title">
+        <h2>Register Now</h2>
+        <span>Enter your data to enjoy our features</span>
+      </div>
+
+      {% if error %}
+      <div class="form-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        <label for="name">Name</label>
+        <input id="name" class="input" type="text" name="name" placeholder="Masukkan nama lengkap" autocomplete="name">
+
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" name="email" placeholder="Masukkan email aktif" autocomplete="email">
+
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password" class="input has-icon" type="password" name="password" placeholder="Buat password" autocomplete="new-password">
+          <span class="eye-icon" aria-hidden="true"></span>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Sign up</button>
+      </form>
+
+      <p class="auth-footer">
+        Have an account?
+        <a href="{% url 'travel:login' %}">Sign in here</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="auth-left">
+    <a class="brand light" href="{% url 'travel:start' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+
+    <div class="auth-left-text">
+      <p class="kicker-light">Register</p>
+      <h1>Buat akun untuk mulai menjelajah.</h1>
+      <p>Setelah Sign up, kamu akan diarahkan ke dashboard website.</p>
+    </div>
+
+    <img src="{% static 'travel/img/samboja-lodge.jpeg' %}" alt="Wisata alam Kalimantan">
+  </section>
+</div>
+{% endblock %}

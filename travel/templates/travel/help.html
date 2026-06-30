@@ -1,0 +1,59 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Help Center - Wisamigo{% endblock %}
+{% block content %}
+<div class="help-page">
+  <header class="home-nav help-nav">
+    <a class="brand light" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Home</a>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">Search</a>
+      <a class="active" href="{% url 'travel:help' %}">Help</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <section class="help-hero">
+    <div>
+      <p class="eyebrow help-eyebrow">Help Search</p>
+      <h1>How can we help?</h1>
+      <form class="help-search" method="get" action="{% url 'travel:help' %}">
+        <span>🔍</span>
+        <input type="text" name="q" value="{{ query }}" placeholder="What is your question">
+        <button type="submit">Search</button>
+      </form>
+      {% if query %}<p class="help-found">Ditemukan {{ total_found }} artikel untuk: <b>{{ query }}</b></p>{% endif %}
+    </div>
+  </section>
+
+  <main class="help-content">
+    <section class="faq-card">
+      {% for group in faqs %}
+      <article class="faq-group">
+        <h2>{{ group.category }}</h2>
+        <div class="faq-list">
+          {% for item in group.items %}
+          <a href="{% url 'travel:help_article' item.slug %}">{{ item.title }}</a>
+          {% endfor %}
+        </div>
+      </article>
+      {% empty %}
+      <div class="filter-empty-state">
+        <h3>Artikel tidak ditemukan</h3>
+        <p>Coba cari kata lain seperti booking, password, profile, maps, atau review.</p>
+      </div>
+      {% endfor %}
+    </section>
+
+    <aside class="help-contact-card">
+      <p class="eyebrow">Need Support?</p>
+      <h2>Hubungi kami</h2>
+      <p>Butuh bantuan tentang booking, pembayaran, maps, review, atau akun? Kirim pertanyaan kamu ke Help Center.</p>
+      <a class="btn btn-primary" href="mailto:support@wisamigo.local">Contact Support</a>
+    </aside>
+  </main>
+</div>
+{% endblock %}

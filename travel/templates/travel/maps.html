@@ -1,0 +1,316 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+{% block title %}Maps - {{ room.name }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIINfQpSDC9bCrtHNddo5MKdv4YfZ9qf7F0=" crossorigin="">
+{% endblock %}
+{% block content %}
+<div class="maps-page">
+  <header class="search-header maps-header">
+    <a class="back-link" href="{% url 'travel:room_detail' room.slug %}" aria-label="Back">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:search' %}?q={{ room.destination|urlencode }}">Accommodation</a>
+      <a class="active" href="{% url 'travel:maps_room' room.slug %}">Maps</a>
+      <a href="{% url 'travel:reviews_room' room.slug %}">Reviews</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <main class="maps-layout maps-layout-functional">
+    <section class="maps-panel maps-panel-functional">
+      <div class="maps-top maps-top-functional">
+        <div>
+          <p class="eyebrow">Maps</p>
+          <h1>Lokasi penginapan</h1>
+          <p>
+            Peta ini sudah memakai marker asli. Harga tampil dalam rupiah, marker ikut bergerak saat peta digeser,
+            dan pencarian langsung memunculkan tempat yang sesuai.
+          </p>
+        </div>
+        <form class="maps-search" id="mapSearchForm" method="get" action="{% url 'travel:maps' %}">
+          <input id="mapSearchInput" type="text" name="q" value="{{ map_query }}" placeholder="Cari hotel / lokasi / destinasi" list="mapSearchList" autocomplete="off">
+          <datalist id="mapSearchList">
+            {% for item in rooms %}
+            <option value="{{ item.name }}"></option>
+            <option value="{{ item.destination }}"></option>
+            <option value="{{ item.location }}"></option>
+            {% endfor %}
+          </datalist>
+          <button type="submit" aria-label="Search">🔍</button>
+        </form>
+      </div>
+
+      <div class="map-tools">
+        <button type="button" class="map-chip active" data-map-filter="">Semua</button>
+        <button type="button" class="map-chip" data-map-filter="Pulau Derawan">Pulau Derawan</button>
+        <button type="button" class="map-chip" data-map-filter="Bukit Bangkirai">Bukit Bangkirai</button>
+        <button type="button" class="map-chip" data-map-filter="Pulau Kumala">Pulau Kumala</button>
+        <button type="button" class="map-chip" data-map-filter="Labuan Cermin">Labuan Cermin</button>
+      </div>
+
+      <div class="map-canvas map-canvas-real">
+        <div id="realMap" class="real-map" aria-label="Peta penginapan Wisamigo"></div>
+      </div>
+
+      <div class="map-search-info" id="mapSearchInfo">
+        Menampilkan {{ matched_count }} lokasi penginapan.
+      </div>
+    </section>
+
+    <aside class="map-room-card map-room-card-live" id="selectedRoomCard">
+      <img src="{% static room.image %}" alt="{{ room.name }}" id="selectedRoomImage">
+      <div>
+        <span id="selectedRoomBadge">{{ room.badge }}</span>
+        <h2 id="selectedRoomName">{{ room.name }}</h2>
+        <p id="selectedRoomLocation">📍 {{ room.location }}</p>
+        <div class="stars" id="selectedRoomStars">
+          {% for i in "12345" %}
+          <b>{% if forloop.counter <= room.stars %}★{% else %}☆{% endif %}</b>
+          {% endfor %}
+        </div>
+        <strong id="selectedRoomPrice">{{ room.price }} <small>/ Night</small></strong>
+        <div class="map-card-actions">
+          <a class="btn btn-primary" id="selectedRoomBooking" href="{% url 'travel:booking_dates' room.slug %}">Reserve Room</a>
+          <a class="btn btn-soft" id="selectedRoomDetail" href="{% url 'travel:room_detail' room.slug %}">Detail</a>
+          <a class="btn btn-soft" id="selectedRoomOpenMap" href="#" target="_blank" rel="noopener">Buka Google Maps</a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="map-list-section map-list-section-functional">
+    <div class="best-heading">
+      <div>
+        <p class="eyebrow">Nearby Accommodation</p>
+        <h2>Hasil di peta</h2>
+      </div>
+      <span class="map-result-count" id="mapResultCount">{{ matched_count }} lokasi</span>
+    </div>
+
+    <div class="map-empty" id="mapEmpty" hidden>
+      Lokasi tidak ditemukan. Coba ketik nama tempat seperti <b>Pulau Derawan</b>, <b>Bukit Bangkirai</b>, <b>Pulau Kumala</b>, atau <b>Labuan Cermin</b>.
+    </div>
+
+    <div class="map-location-grid map-location-grid-functional" id="mapLocationGrid">
+      {% for item in rooms %}
+      <article class="map-location-card map-location-card-functional {% if item.slug == room.slug %}active{% endif %}"
+        data-map-card
+        data-slug="{{ item.slug }}"
+        data-search="{{ item.name }} {{ item.destination }} {{ item.location }} {{ item.price }} {{ item.badge }}">
+        <img src="{% static item.image %}" alt="{{ item.name }}">
+        <div>
+          <strong>{{ item.name }}</strong>
+          <span>📍 {{ item.location }}</span>
+          <em>{{ item.price }} / Night</em>
+          <div class="map-card-mini-actions">
+            <button type="button" data-focus-room="{{ item.slug }}">Lihat di map</button>
+            <a href="{% url 'travel:room_detail' item.slug %}">Detail</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{{ map_rooms|json_script:"map-rooms-data" }}
+{% endblock %}
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  const rooms = JSON.parse(document.getElementById('map-rooms-data').textContent);
+  const staticPrefix = '{{ STATIC_PREFIX }}';
+  const selectedSlug = '{{ selected_slug }}';
+  const initialQuery = '{{ map_query|escapejs }}';
+  const mapElement = document.getElementById('realMap');
+  const form = document.getElementById('mapSearchForm');
+  const input = document.getElementById('mapSearchInput');
+  const cards = Array.from(document.querySelectorAll('[data-map-card]'));
+  const chips = Array.from(document.querySelectorAll('[data-map-filter]'));
+  const info = document.getElementById('mapSearchInfo');
+  const countLabel = document.getElementById('mapResultCount');
+  const empty = document.getElementById('mapEmpty');
+
+  const detailUrlTemplate = "{% url 'travel:room_detail' 'room-slug-here' %}";
+  const bookingUrlTemplate = "{% url 'travel:booking_dates' 'room-slug-here' %}";
+  const mapsUrlTemplate = "{% url 'travel:maps_room' 'room-slug-here' %}";
+
+  function makeUrl(template, slug) {
+    return template.replace('room-slug-here', slug);
+  }
+
+  function getRoom(slug) {
+    return rooms.find(room => room.slug === slug) || rooms[0];
+  }
+
+  function roomSearchText(room) {
+    return [room.name, room.destination, room.location, room.price, room.priceNumber, room.badge].join(' ').toLowerCase();
+  }
+
+  function getMatches(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) return rooms;
+    return rooms.filter(room => roomSearchText(room).includes(q));
+  }
+
+  function stars(count) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) html += `<b>${i <= count ? '★' : '☆'}</b>`;
+    return html;
+  }
+
+  function setSelectedRoom(room, fly = false) {
+    document.getElementById('selectedRoomImage').src = staticPrefix + room.image;
+    document.getElementById('selectedRoomImage').alt = room.name;
+    document.getElementById('selectedRoomBadge').textContent = room.badge;
+    document.getElementById('selectedRoomName').textContent = room.name;
+    document.getElementById('selectedRoomLocation').textContent = '📍 ' + room.location;
+    document.getElementById('selectedRoomStars').innerHTML = stars(room.stars);
+    document.getElementById('selectedRoomPrice').innerHTML = `${room.price} <small>/ Night</small>`;
+    document.getElementById('selectedRoomBooking').href = makeUrl(bookingUrlTemplate, room.slug);
+    document.getElementById('selectedRoomDetail').href = makeUrl(detailUrlTemplate, room.slug);
+    document.getElementById('selectedRoomOpenMap').href = room.mapsUrl;
+
+    cards.forEach(card => card.classList.toggle('active', card.dataset.slug === room.slug));
+    if (window.wisamigoMarkers) {
+      rooms.forEach(item => {
+        const marker = window.wisamigoMarkers[item.slug];
+        if (marker) marker.setIcon(markerIcon(item, item.slug === room.slug));
+      });
+    }
+
+    if (fly && window.wisamigoMap) {
+      window.wisamigoMap.flyTo([room.lat, room.lng], 14, { duration: 0.9 });
+      const marker = window.wisamigoMarkers[room.slug];
+      if (marker) marker.openPopup();
+    }
+  }
+
+  function markerIcon(room, isActive) {
+    return L.divIcon({
+      className: '',
+      html: `<div class="rupiah-marker ${isActive ? 'active' : ''}">${room.price}</div>`,
+      iconSize: [118, 38],
+      iconAnchor: [59, 19],
+      popupAnchor: [0, -18]
+    });
+  }
+
+  function popupHtml(room) {
+    return `
+      <div class="map-popup">
+        <img src="${staticPrefix + room.image}" alt="${room.name}">
+        <strong>${room.name}</strong>
+        <span>${room.location}</span>
+        <b>${room.price} / Night</b>
+        <div>
+          <a href="${makeUrl(detailUrlTemplate, room.slug)}">Detail</a>
+          <a href="${makeUrl(bookingUrlTemplate, room.slug)}">Booking</a>
+        </div>
+      </div>
+    `;
+  }
+
+  const fallbackCenter = [-0.55, 117.25];
+  const map = L.map(mapElement, {
+    zoomControl: true,
+    scrollWheelZoom: true
+  }).setView(fallbackCenter, 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const markerLayer = L.layerGroup().addTo(map);
+  window.wisamigoMap = map;
+  window.wisamigoMarkers = {};
+
+  function renderMap(query, keepFocus = false) {
+    const matches = getMatches(query);
+    markerLayer.clearLayers();
+    window.wisamigoMarkers = {};
+
+    cards.forEach(card => {
+      const isVisible = matches.some(room => room.slug === card.dataset.slug);
+      card.hidden = !isVisible;
+    });
+
+    empty.hidden = matches.length !== 0;
+    const label = matches.length + ' lokasi';
+    countLabel.textContent = label;
+    info.textContent = matches.length
+      ? `Menampilkan ${matches.length} lokasi sesuai pencarian. Geser atau zoom peta, harga akan tetap menempel pada lokasi.`
+      : 'Lokasi tidak ditemukan di data Wisamigo.';
+
+    matches.forEach(room => {
+      const active = room.slug === selectedSlug || room.slug === (matches[0] && matches[0].slug);
+      const marker = L.marker([room.lat, room.lng], { icon: markerIcon(room, active) })
+        .bindPopup(popupHtml(room));
+      marker.on('click', () => setSelectedRoom(room, false));
+      marker.addTo(markerLayer);
+      window.wisamigoMarkers[room.slug] = marker;
+    });
+
+    if (matches.length) {
+      const chosen = matches.find(room => room.slug === selectedSlug) || matches[0];
+      setSelectedRoom(chosen, false);
+      const bounds = L.latLngBounds(matches.map(room => [room.lat, room.lng]));
+      if (!keepFocus) {
+        if (matches.length === 1) {
+          map.setView([chosen.lat, chosen.lng], 14);
+          setTimeout(() => window.wisamigoMarkers[chosen.slug]?.openPopup(), 300);
+        } else {
+          map.fitBounds(bounds, { padding: [46, 46], maxZoom: 11 });
+        }
+      }
+    }
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    const value = input.value.trim();
+    renderMap(value, false);
+    const newUrl = value ? `${window.location.pathname}?q=${encodeURIComponent(value)}` : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  });
+
+  let typingTimer = null;
+  input.addEventListener('input', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => renderMap(input.value, false), 180);
+  });
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', function () {
+      chips.forEach(item => item.classList.remove('active'));
+      chip.classList.add('active');
+      input.value = chip.dataset.mapFilter;
+      renderMap(input.value, false);
+    });
+  });
+
+  document.addEventListener('click', function (event) {
+    const focusButton = event.target.closest('[data-focus-room]');
+    if (!focusButton) return;
+    const room = getRoom(focusButton.dataset.focusRoom);
+    setSelectedRoom(room, true);
+  });
+
+  renderMap(initialQuery, false);
+
+  if (!initialQuery) {
+    const initialRoom = getRoom(selectedSlug);
+    setSelectedRoom(initialRoom, true);
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Dashboard - Wisamigo{% endblock %}
+{% block content %}
+<div class="home-desktop">
+  <header class="home-nav">
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+
+    <nav>
+      <a class="active" href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">Search</a>
+      <a href="{% url 'travel:maps' %}">Maps</a>
+      <a href="{% url 'travel:help' %}">Help</a>
+      <a href="{% url 'travel:payment_history' %}">Riwayat Pembayaran</a>
+      {% if is_staff %}
+      <a href="{% url 'travel:admin_payment_dashboard' %}">Admin</a>
+      {% endif %}
+      <a href="{% url 'travel:account' %}">Account</a>
+      <a href="{% url 'travel:logout' %}">Logout</a>
+      <a href="{% url 'travel:ai_page' %}">🤖 AI</a>
+
+    </nav>
+  </header>
+
+  <main class="home-hero">
+    <section class="home-copy">
+      <h1>Pulau Derawan</h1>
+      <p>Dashboard wisata berbentuk desktop dengan area pencarian, hero image besar, akun, dan daftar destinasi populer seperti pada foto referensi.</p>
+
+      <form class="desktop-search" action="{% url 'travel:search' %}" method="get">
+        <div>
+          <span>Search</span>
+          <input type="text" name="q" placeholder="Search destination" list="destination-list" value="Pulau Derawan">
+          <datalist id="destination-list">
+            {% for item in quick_searches %}
+            <option value="{{ item }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+        <div>
+          <span>Location</span>
+          <select name="location">
+            <option>Kalimantan Timur</option>
+            <option>Berau</option>
+            <option>Tenggarong</option>
+          </select>
+        </div>
+        <button type="submit">Search</button>
+      </form>
+
+      <div class="quick-links">
+        {% for item in quick_searches %}
+        <a href="{% url 'travel:search' %}?q={{ item|urlencode }}">{{ item }}</a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="home-image">
+      <img src="{% static 'travel/img/noah-maratua-resort.jpeg' %}" alt="Pulau Derawan">
+      <div class="home-image-caption">
+        <span>Featured Destination</span>
+        <strong>Pulau Derawan</strong>
+      </div>
+    </section>
+  </main>
+
+  <section class="popular-section" id="popular">
+    <div class="popular-heading">
+      <div>
+        <p class="eyebrow">Popular Destination</p>
+        <h2>Destinasi Populer</h2>
+      </div>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">View all</a>
+    </div>
+
+    <div class="popular-grid">
+      {% for item in popular_destinations %}
+      <a class="popular-card" href="{% url 'travel:search' %}?q={{ item.query|urlencode }}" style="background-image: url('{% static item.image %}')">
+        <div>
+          <span>Indonesia</span>
+          <h3>{{ item.title }}</h3>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="photo-gallery-section" id="gallery-foto">
+    <div class="popular-heading">
+      <div>
+        <p class="eyebrow">Photo Gallery</p>
+        <h2>Foto Penginapan</h2>
+      </div>
+      <a href="{% url 'travel:search' %}?q=Pulau%20Derawan">Explore</a>
+    </div>
+
+    <div class="photo-gallery-grid">
+      {% for item in room_gallery %}
+      <a class="photo-gallery-card" href="{% url 'travel:room_detail' item.slug %}">
+        <img src="{% static item.image %}" alt="{{ item.name }}">
+        <div>
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.destination }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="detail-section feature-dashboard-grid" id="detail">
+    <article>
+      <h3>Account</h3>
+      <p>Halaman profil untuk melihat dan mengedit akun.</p>
+    </article>
+    <article>
+      <h3>Search</h3>
+      <p>Cari destinasi dari dashboard, lalu tampil daftar accommodation.</p>
+    </article>
+    <article>
+      <h3>Maps & Reviews</h3>
+      <p>Lihat lokasi hotel di maps dan daftar review pengunjung.</p>
+    </article>
+    <article>
+      <h3>Help Center</h3>
+      <p>Pusat bantuan untuk reservasi, pembayaran, dan akun.</p>
+    </article>
+  </section>
+</div>
+{% endblock %}

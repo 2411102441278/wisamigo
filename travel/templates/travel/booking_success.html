@@ -1,0 +1,89 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Booking Berhasil - Wisamigo{% endblock %}
+{% block content %}
+<div class="success-page">
+  <header class="home-nav success-nav">
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:home' %}">Dashboard</a>
+      <a href="{% url 'travel:search' %}?q={{ room.destination|urlencode }}">Search</a>
+      <a href="{% url 'travel:account' %}">Account</a>
+    </nav>
+  </header>
+
+  <main class="success-layout">
+    <section class="success-main-card">
+      <div class="success-icon">✓</div>
+      <p class="success-title">Booking Berhasil!</p>
+      <h1>Konfirmasi Anda Telah Terkirim</h1>
+      <p class="success-subtitle">Simpan kode booking berikut untuk proses check-in.</p>
+
+      <article class="success-room-card">
+        <img src="{% static room.image %}" alt="{{ room.name }}">
+        <div>
+          <span>{{ room.badge }}</span>
+          <h2>{{ room.name }}</h2>
+          <p>📍 {{ room.location }}</p>
+          <strong>{{ room.price }}</strong>
+        </div>
+      </article>
+
+      <div class="success-detail-grid">
+        <div><span>Check In</span><strong>{{ checkin_text }}</strong></div>
+        <div><span>Check Out</span><strong>{{ checkout_text }}</strong></div>
+        <div><span>Rooms</span><strong>{{ rooms_count }}</strong></div>
+        <div><span>Adult</span><strong>{{ adults }}</strong></div>
+        <div><span>Children</span><strong>{{ children }}</strong></div>
+        <div><span>Total</span><strong>{{ total }}</strong></div>
+      </div>
+    </section>
+
+    <aside class="success-ticket">
+      <p class="eyebrow">Booking Code</p>
+      <h2>{{ booking_code }}</h2>
+      <p>Nomor pesanan kamu sudah dibuat. Halaman ini dibuat sesuai alur booking dari foto: room detail → calendar → room set → booking berhasil.</p>
+      <a class="btn btn-primary" href="{% url 'travel:home' %}">Back to Dashboard</a>
+      {% if payment %}
+      <div style="margin-top:16px;padding:12px;background:#f7fbff;border-radius:8px;border:1px solid #e6eef8;">
+        <p class="eyebrow">Ringkasan Pembayaran</p>
+        <p>Status: <strong>{{ payment.status|title }}</strong></p>
+        <p>Metode: <strong>
+          {% if payment.payment_method == 'gopay' %}GoPay (QR)
+          {% elif payment.payment_method == 'ovo' %}OVO (QR)
+          {% elif payment.payment_method == 'credit_card' %}Kartu Kredit
+          {% elif payment.payment_method == 'bank_transfer' %}Transfer Bank
+          {% else %}{{ payment.payment_method|title }}
+          {% endif %}
+        </strong></p>
+        <p>Jumlah: <strong>{{ payment.amount_rupiah }}</strong></p>
+        <p>ID Transaksi: <strong>{{ payment.transaction_id }}</strong></p>
+        <p style="margin-top:8px;"><a class="ticket-link" href="{% url 'travel:payment_history' %}">Lihat Riwayat Pembayaran</a></p>
+        
+        {% if payment.proof.all %}
+          <div style="margin-top: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #4caf50;">
+            <p style="margin: 0 0 8px; color: #2e7d32; font-weight: 600; font-size: 13px;">📸 Status Verifikasi Bukti Pembayaran</p>
+            {% for proof in payment.proof.all %}
+              <p style="margin: 4px 0; font-size: 12px; color: #555;">
+                {% if proof.verification_status == 'verified' %}
+                  <span style="color: #4caf50; font-weight: 600;">✓ Terverifikasi oleh Admin</span>
+                {% elif proof.verification_status == 'rejected' %}
+                  <span style="color: #d32f2f; font-weight: 600;">✗ Ditolak - {{ proof.admin_notes }}</span>
+                {% else %}
+                  <span style="color: #f57f17; font-weight: 600;">⏱ Menunggu Verifikasi Admin</span>
+                {% endif %}
+              </p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <a class="ticket-link" href="{% url 'travel:search' %}?q={{ room.destination|urlencode }}">Booking hotel lain</a>
+    </aside>
+  </main>
+</div>
+{% endblock %}

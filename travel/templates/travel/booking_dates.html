@@ -1,0 +1,186 @@
+{% extends 'travel/base.html' %}
+{% load static %}
+{% block title %}Pilih Tanggal - {{ room.name }}{% endblock %}
+{% block content %}
+<div class="booking-page">
+  <header class="search-header room-topbar">
+    <a class="back-link" href="{% url 'travel:room_detail' room.slug %}" aria-label="Back to room">←</a>
+    <a class="brand" href="{% url 'travel:home' %}">
+      <span class="brand-icon"><img src="{% static 'travel/img/logo.svg' %}" alt="Wisamigo logo"></span>
+      <span>wisamigo</span>
+    </a>
+    <nav>
+      <a href="{% url 'travel:room_detail' room.slug %}">Room</a>
+      <a class="active" href="#">Calendar</a>
+      <a href="{% url 'travel:booking_rooms' room.slug %}">Room Set</a>
+    </nav>
+  </header>
+
+  <main class="booking-layout">
+    <section class="booking-preview">
+      <img src="{% static room.image %}" alt="{{ room.name }}">
+      <div>
+        <span>{{ room.badge }}</span>
+        <h1>{{ room.name }}</h1>
+        <p>{{ room.location }}</p>
+        <strong>{{ room.price }} <small>/ Night</small></strong>
+      </div>
+    </section>
+
+    <section class="booking-card-large calendar-card">
+      <div class="booking-step-title">
+        <p class="eyebrow">Calendar</p>
+        <h2>Pilih jadwal menginap</h2>
+        <span>Klik tanggal di kalender atau ubah lewat input tanggal. Pilihan akan langsung ikut berubah.</span>
+      </div>
+
+      <form method="post" class="date-booking-form" id="dateBookingForm">
+        {% csrf_token %}
+        <div class="date-pair">
+          <label>
+            <span>Check In</span>
+            <input id="checkinInput" type="date" name="checkin" value="{{ checkin }}">
+          </label>
+          <label>
+            <span>Check Out</span>
+            <input id="checkoutInput" type="date" name="checkout" value="{{ checkout }}">
+          </label>
+        </div>
+
+        <div class="calendar-mock" data-month="{{ calendar_month }}">
+          <div class="calendar-head">
+            <button type="button" aria-label="Previous month">‹</button>
+            <strong>July 2026</strong>
+            <button type="button" aria-label="Next month">›</button>
+          </div>
+          <div class="calendar-week">
+            <b>Sun</b><b>Mon</b><b>Tue</b><b>Wed</b><b>Thu</b><b>Fri</b><b>Sat</b>
+          </div>
+          <div class="calendar-grid" id="calendarGrid">
+            {% for day in calendar_days %}
+            <button type="button" class="calendar-day {% if day in active_days %}active{% endif %}" data-day="{{ day }}">{{ day }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Apply & Next</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const calendar = document.querySelector('.calendar-mock');
+  const month = calendar.dataset.month || '2026-07';
+  const checkinInput = document.getElementById('checkinInput');
+  const checkoutInput = document.getElementById('checkoutInput');
+  const form = document.getElementById('dateBookingForm');
+  const days = Array.from(document.querySelectorAll('.calendar-day'));
+  let selectingCheckout = false;
+
+  function pad(number) {
+    return String(number).padStart(2, '0');
+  }
+
+  function isoFromDay(day) {
+    return `${month}-${pad(day)}`;
+  }
+
+  function dateFromIso(value) {
+    if (!value) return null;
+    const date = new Date(`${value}T00:00:00`);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  function dayInCalendar(value) {
+    if (!value || !value.startsWith(month)) return null;
+    const day = Number(value.slice(-2));
+    return Number.isFinite(day) ? day : null;
+  }
+
+  function formatIso(date) {
+    const year = date.getFullYear();
+    const monthValue = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    return `${year}-${monthValue}-${day}`;
+  }
+
+  function ensureCheckoutAfterCheckin() {
+    const checkinDate = dateFromIso(checkinInput.value);
+    const checkoutDate = dateFromIso(checkoutInput.value);
+
+    if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+      const nextDate = new Date(checkinDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+      checkoutInput.value = formatIso(nextDate);
+    }
+  }
+
+  function updateCalendarHighlight() {
+    ensureCheckoutAfterCheckin();
+
+    const startDay = dayInCalendar(checkinInput.value);
+    const endDay = dayInCalendar(checkoutInput.value);
+
+    days.forEach(function (button) {
+      const currentDay = Number(button.dataset.day);
+      let active = false;
+
+      if (startDay && endDay) {
+        active = currentDay >= Math.min(startDay, endDay) && currentDay <= Math.max(startDay, endDay);
+      } else if (startDay) {
+        active = currentDay === startDay;
+      }
+
+      button.classList.toggle('active', active);
+    });
+  }
+
+  days.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const pickedDay = Number(button.dataset.day);
+      const pickedDate = isoFromDay(pickedDay);
+      const checkinDate = dateFromIso(checkinInput.value);
+      const pickedDateObject = dateFromIso(pickedDate);
+
+      if (!checkinInput.value || !selectingCheckout || (checkinInput.value && checkoutInput.value)) {
+        checkinInput.value = pickedDate;
+        checkoutInput.value = '';
+        selectingCheckout = true;
+      } else if (checkinDate && pickedDateObject && pickedDateObject > checkinDate) {
+        checkoutInput.value = pickedDate;
+        selectingCheckout = false;
+      } else {
+        checkinInput.value = pickedDate;
+        checkoutInput.value = '';
+        selectingCheckout = true;
+      }
+
+      updateCalendarHighlight();
+    });
+  });
+
+  checkinInput.addEventListener('change', function () {
+    selectingCheckout = true;
+    updateCalendarHighlight();
+  });
+
+  checkoutInput.addEventListener('change', function () {
+    selectingCheckout = false;
+    updateCalendarHighlight();
+  });
+
+  form.addEventListener('submit', function () {
+    if (checkinInput.value && !checkoutInput.value) {
+      const nextDate = dateFromIso(checkinInput.value);
+      nextDate.setDate(nextDate.getDate() + 1);
+      checkoutInput.value = formatIso(nextDate);
+    }
+    ensureCheckoutAfterCheckin();
+  });
+
+  updateCalendarHighlight();
+});
+</script>
+{% endblock %}
